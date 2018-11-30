@@ -13,7 +13,7 @@ from utils import Handler, Proposal
 
 from settings import TORNADO_SETTINGS, ACCEPTOR_URLS
 
-
+# learner tracks quorum of acceptors 
 QUORUM = int(len(ACCEPTOR_URLS) / 2) + 1
 payloads = collections.defaultdict(lambda: {'votes': 0, 'payload': None})
 logger = logging.getLogger('learner')

@@ -97,6 +97,8 @@ class PrepareHandler(Handler):
 
 class AcceptRequestHandler(Handler):
 
+    in_flight_requests = []
+
     @tornado.gen.coroutine
     def post(self):
         """
@@ -106,16 +108,20 @@ class AcceptRequestHandler(Handler):
         accept_request = AcceptRequest.from_json(json.loads(self.request.body))
         accept_request_response = AcceptRequestResponse(accept_request.proposal,
                                                         status=AcceptRequestResponse.NACK)
+        in_flight_requests.append(accept_request)
+        committed_count = 0
         if acceptor.should_accept(accept_request):
             for learner_url in LEARNER_URLS:
                 resp = yield send(learner_url + "/learn", accept_request_response)  # send to all learners.
                 learner_response = json.loads(resp.body)
                 if learner_response.get('status') == AcceptRequestResponse.COMMITTED:
                     accept_request_response.set_status(AcceptRequestResponse.COMMITTED)
+                    committed_count += 1
                 elif resp.code == 200:
                     accept_request_response.set_status(AcceptRequestResponse.ACK)
                 else:
                     accept_request_response.set_status(AcceptRequestResponse.NACK)
+            if(commited_count >= len(LEARNER_URLS)/2)
         else:
             logger.error("Acceptor received proposal id=%s but the highest is %s. REJECTED",
                          accept_request.proposal.id, acceptor.highest_proposal())

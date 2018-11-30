@@ -11,8 +11,8 @@ from settings import PROPOSER_URLS
 failures = collections.defaultdict(int)
 
 
-def sync():
-    for i in range(20):
+def sync(range):
+    for i in range:
         url = random.choice(PROPOSER_URLS)
         response = requests.post(url + "/",
             data=json.dumps({
@@ -28,6 +28,6 @@ def sync():
         sys.stdout.flush()
     print("Failures", failures)
 
-sync()
+sync(range(20))
 print("Failures", failures)
 
